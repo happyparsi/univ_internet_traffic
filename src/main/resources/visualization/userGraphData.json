@@ -31,7 +31,33 @@
         "source": "R7",
         "target": "R1",
         "latency": 10,
-        "congestion": 1
+        "congestion": 1,
+        "id": "06bee621-2772-4462-b9e1-2c283b7ea262"
+      }
+    },
+    {
+      "data": {
+        "id": "R9",
+        "label": "R9",
+        "type": "Server",
+        "priority": 1
+      }
+    },
+    {
+      "data": {
+        "source": "R8",
+        "target": "R5",
+        "latency": 10,
+        "congestion": 1,
+        "id": "242f05fa-7cc7-4a18-9ed6-c0478bf7058b"
+      }
+    },
+    {
+      "data": {
+        "source": "R9",
+        "target": "R2",
+        "latency": 10,
+        "congestion": 0
       }
     }
   ]
