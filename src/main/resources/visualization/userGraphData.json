@@ -1,0 +1,38 @@
+{
+  "elements": [
+    {
+      "data": {
+        "source": "R8",
+        "target": "R2",
+        "latency": 10,
+        "congestion": 3,
+        "id": "95b97267-6d49-4e78-b159-ebcc5427307a"
+      }
+    },
+    {
+      "data": {
+        "source": "R4",
+        "target": "R2",
+        "latency": 12,
+        "congestion": 2,
+        "id": "9c64f39e-a6fc-4bcd-8534-b5880fe90b77"
+      }
+    },
+    {
+      "data": {
+        "id": "R7",
+        "label": "R7",
+        "type": "Lab",
+        "priority": 1
+      }
+    },
+    {
+      "data": {
+        "source": "R7",
+        "target": "R1",
+        "latency": 10,
+        "congestion": 1
+      }
+    }
+  ]
+}

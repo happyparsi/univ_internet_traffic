@@ -2,7 +2,9 @@ package simulation;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -15,6 +17,54 @@ public class RouterGraphManager {
     public RouterGraphManager() {
         this.nodes = new HashMap<>();
         this.edges = new ArrayList<>();
+    }
+
+    public void loadUserGraphData(String path) {
+        try (FileReader reader = new FileReader(path)) {
+            Gson gson = new Gson();
+            Map<String, List<Map<String, Map<String, Object>>>> userGraphData = gson.fromJson(
+                    reader,
+                    new TypeToken<Map<String, List<Map<String, Map<String, Object>>>>>() {}.getType()
+            );
+
+            if (userGraphData == null || userGraphData.get("elements") == null) {
+                return;
+            }
+
+            List<Map<String, Map<String, Object>>> elements = userGraphData.get("elements");
+
+            // First, add all nodes
+            for (Map<String, Map<String, Object>> element : elements) {
+                Map<String, Object> data = element.get("data");
+                if (data != null && data.containsKey("id") && !data.containsKey("source")) {
+                    String id = (String) data.get("id");
+                    String type = (String) data.get("type");
+                    int priority = ((Number) data.get("priority")).intValue();
+                    if (!nodes.containsKey(id)) {
+                        addRouter(id, type, priority);
+                        System.out.println("[RouterGraphManager] Loaded user node: " + id + " (" + type + ")");
+                    }
+                }
+            }
+
+            // Then, add all edges
+            for (Map<String, Map<String, Object>> element : elements) {
+                Map<String, Object> data = element.get("data");
+                if (data != null && data.containsKey("source") && data.containsKey("target")) {
+                    String sourceId = (String) data.get("source");
+                    String targetId = (String) data.get("target");
+                    int latency = ((Number) data.get("latency")).intValue();
+                    int congestion = ((Number) data.get("congestion")).intValue();
+                    if (nodes.containsKey(sourceId) && nodes.containsKey(targetId) &&
+                            !edges.stream().anyMatch(e -> e.getSource().getId().equals(sourceId) && e.getTarget().getId().equals(targetId))) {
+                        addConnection(sourceId, targetId, latency, congestion);
+                        System.out.println("[RouterGraphManager] Loaded user edge: " + sourceId + " -> " + targetId);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("[RouterGraphManager] No user graph data found or error loading: " + e.getMessage());
+        }
     }
 
     public void addRouter(String id, String type, int priority) {

@@ -87,6 +87,27 @@
     <div class="left-panel">
         <h1>Smart Traffic Manager Network</h1>
         <div class="controls">
+            <h3>Add Router</h3>
+            <label>Router ID: <input type="text" id="add-router-id" placeholder="e.g., R7"></label>
+            <label>Type: <select id="add-router-type">
+                <option value="Lab">Lab</option>
+                <option value="Classroom">Classroom</option>
+                <option value="Library">Library</option>
+                <option value="Cafeteria">Cafeteria</option>
+                <option value="Admin">Admin</option>
+                <option value="DataCenter">DataCenter</option>
+                <option value="Server">Server</option>
+            </select></label>
+            <label>Priority: <input type="number" id="add-router-priority" value="1" min="0"></label>
+            <button onclick="addRouter()">Add Router</button>
+
+            <h3>Add Edge</h3>
+            <label>Source ID: <input type="text" id="add-edge-source" placeholder="e.g., R1"></label>
+            <label>Target ID: <input type="text" id="add-edge-target" placeholder="e.g., R2"></label>
+            <label>Latency: <input type="number" id="add-edge-latency" value="10" min="1"></label>
+            <label>Congestion: <input type="number" id="add-edge-congestion" value="0" min="0"></label>
+            <button onclick="addEdge()">Add Edge</button>
+
             <h3>Simulate Request</h3>
             <label>Source Router: <select id="sim-source">
                 <option value="R1">R1 (Lab)</option>
@@ -141,6 +162,7 @@
 <script>
     let cy;
     let graphData = { elements: [] };
+    let userGraphData = { elements: [] };
     let proxyCache = new Set(['intranet.edu']);
     let proxyLoad = 0;
     const proxyMaxCapacity = 2;
@@ -153,23 +175,49 @@
     setInterval(checkForGraphUpdates, 5000);
 
     function fetchGraphData() {
-        fetch('data.json', { cache: 'no-store' })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+        Promise.all([
+            fetch('data.json', { cache: 'no-store' }),
+            fetch('userGraphData.json', { cache: 'no-store' }).catch(() => ({ ok: false }))
+        ])
+            .then(([dataResponse, userDataResponse]) => {
+                if (!dataResponse.ok) {
+                    throw new Error('Network response was not ok for data.json');
                 }
-                return response.json();
+                const dataPromise = dataResponse.json();
+                const userDataPromise = userDataResponse.ok ? userDataResponse.json() : Promise.resolve({ elements: [] });
+                return Promise.all([dataPromise, userDataPromise]);
             })
-            .then(data => {
+            .then(([data, userData]) => {
                 graphData = data;
+                userGraphData = userData;
+                mergeGraphData();
                 initializeGraph();
                 updateSourceRouterOptions();
                 lastModifiedTime = Date.now();
             })
             .catch(error => {
-                console.error('Error loading data.json:', error);
+                console.error('Error loading graph data:', error);
                 initializeGraph();
             });
+    }
+
+    function mergeGraphData() {
+        const mergedElements = [...graphData.elements];
+        const existingNodeIds = new Set(mergedElements.filter(el => el.data.id).map(el => el.data.id));
+        const existingEdges = new Set(mergedElements.filter(el => el.data.source && el.data.target)
+            .map(el => `${el.data.source}-${el.data.target}`));
+
+        userGraphData.elements.forEach(element => {
+            if (element.data.id && !existingNodeIds.has(element.data.id)) {
+                mergedElements.push(element);
+                existingNodeIds.add(element.data.id);
+            } else if (element.data.source && element.data.target && !existingEdges.has(`${element.data.source}-${element.data.target}`)) {
+                mergedElements.push(element);
+                existingEdges.add(`${element.data.source}-${element.data.target}`);
+            }
+        });
+
+        graphData.elements = mergedElements;
     }
 
     function checkForGraphUpdates() {
@@ -198,6 +246,89 @@
             .catch(error => {
                 console.error('Error checking for updates:', error);
                 alert('Error checking for updates. Please try again.');
+            });
+    }
+
+    function addRouter() {
+        const id = document.getElementById('add-router-id').value.trim();
+        const type = document.getElementById('add-router-type').value;
+        const priority = parseInt(document.getElementById('add-router-priority').value);
+
+        if (!id) {
+            alert('Please enter a Router ID.');
+            return;
+        }
+
+        if (graphData.elements.some(el => el.data.id === id)) {
+            alert('Router ID already exists.');
+            return;
+        }
+
+        const newNode = {
+            data: { id, label: id, type, priority }
+        };
+        userGraphData.elements.push(newNode);
+        saveUserGraphData();
+        graphData.elements.push(newNode);
+        initializeGraph();
+        updateSourceRouterOptions();
+        alert('Router added. Rerun SimulationEngine to include this in the simulation.');
+    }
+
+    function addEdge() {
+        const source = document.getElementById('add-edge-source').value.trim();
+        const target = document.getElementById('add-edge-target').value.trim();
+        const latency = parseInt(document.getElementById('add-edge-latency').value);
+        const congestion = parseInt(document.getElementById('add-edge-congestion').value);
+
+        if (!source || !target) {
+            alert('Please enter both Source and Target IDs.');
+            return;
+        }
+
+        if (source === target) {
+            alert('Source and Target cannot be the same.');
+            return;
+        }
+
+        const sourceExists = graphData.elements.some(el => el.data.id === source);
+        const targetExists = graphData.elements.some(el => el.data.id === target);
+        if (!sourceExists || !targetExists) {
+            alert('Source or Target router does not exist.');
+            return;
+        }
+
+        if (graphData.elements.some(el => el.data.source === source && el.data.target === target)) {
+            alert('Edge already exists.');
+            return;
+        }
+
+        const newEdge = {
+            data: { source, target, latency, congestion }
+        };
+        userGraphData.elements.push(newEdge);
+        saveUserGraphData();
+        graphData.elements.push(newEdge);
+        initializeGraph();
+        alert('Edge added. Rerun SimulationEngine to include this in the simulation.');
+    }
+
+    function saveUserGraphData() {
+        fetch('saveUserGraphData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userGraphData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to save user graph data');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving user graph data:', error);
+                alert('Failed to save user graph data. Changes may not persist.');
             });
     }
 

@@ -8,25 +8,38 @@ public class SimulationEngine {
     public static void main(String[] args) throws InterruptedException {
         RouterGraphManager graphManager = new RouterGraphManager();
 
-        // Initial graph setup
-        graphManager.addRouter("R1", "Lab", 1);
-        graphManager.addRouter("R2", "Classroom", 2);
-        graphManager.addRouter("R3", "Library", 3);
-        graphManager.addRouter("R4", "Cafeteria", 4);
-        graphManager.addRouter("R5", "Admin", 2);
-        graphManager.addRouter("R6", "DataCenter", 1);
-        graphManager.addRouter("Internet", "Gateway", 0);
+        // Load user-added nodes and edges
+        graphManager.loadUserGraphData("src/main/resources/visualization/userGraphData.json");
 
-        graphManager.addConnection("R1", "R2", 10, 1);
-        graphManager.addConnection("R2", "R3", 8, 2);
-        graphManager.addConnection("R3", "R4", 5, 1);
-        graphManager.addConnection("R4", "Internet", 15, 0);
-        graphManager.addConnection("R1", "R3", 20, 3);
-        graphManager.addConnection("R2", "Internet", 25, 2);
-        graphManager.addConnection("R5", "R1", 12, 1);
-        graphManager.addConnection("R5", "R6", 7, 0);
-        graphManager.addConnection("R6", "R4", 10, 2);
-        graphManager.addConnection("R6", "Internet", 18, 1);
+        // Initial graph setup (only if not already added by user)
+        if (!graphManager.getNodes().containsKey("R1")) graphManager.addRouter("R1", "Lab", 1);
+        if (!graphManager.getNodes().containsKey("R2")) graphManager.addRouter("R2", "Classroom", 2);
+        if (!graphManager.getNodes().containsKey("R3")) graphManager.addRouter("R3", "Library", 3);
+        if (!graphManager.getNodes().containsKey("R4")) graphManager.addRouter("R4", "Cafeteria", 4);
+        if (!graphManager.getNodes().containsKey("R5")) graphManager.addRouter("R5", "Admin", 2);
+        if (!graphManager.getNodes().containsKey("R6")) graphManager.addRouter("R6", "DataCenter", 1);
+        if (!graphManager.getNodes().containsKey("Internet")) graphManager.addRouter("Internet", "Gateway", 0);
+
+        if (graphManager.getAllEdges().stream().noneMatch(e -> e.getSource().getId().equals("R1") && e.getTarget().getId().equals("R2")))
+            graphManager.addConnection("R1", "R2", 10, 1);
+        if (!graphManager.getAllEdges().stream().anyMatch(e -> e.getSource().getId().equals("R2") && e.getTarget().getId().equals("R3")))
+            graphManager.addConnection("R2", "R3", 8, 2);
+        if (!graphManager.getAllEdges().stream().anyMatch(e -> e.getSource().getId().equals("R3") && e.getTarget().getId().equals("R4")))
+            graphManager.addConnection("R3", "R4", 5, 1);
+        if (!graphManager.getAllEdges().stream().anyMatch(e -> e.getSource().getId().equals("R4") && e.getTarget().getId().equals("Internet")))
+            graphManager.addConnection("R4", "Internet", 15, 0);
+        if (!graphManager.getAllEdges().stream().anyMatch(e -> e.getSource().getId().equals("R1") && e.getTarget().getId().equals("R3")))
+            graphManager.addConnection("R1", "R3", 20, 3);
+        if (!graphManager.getAllEdges().stream().anyMatch(e -> e.getSource().getId().equals("R2") && e.getTarget().getId().equals("Internet")))
+            graphManager.addConnection("R2", "Internet", 25, 2);
+        if (!graphManager.getAllEdges().stream().anyMatch(e -> e.getSource().getId().equals("R5") && e.getTarget().getId().equals("R1")))
+            graphManager.addConnection("R5", "R1", 12, 1);
+        if (!graphManager.getAllEdges().stream().anyMatch(e -> e.getSource().getId().equals("R5") && e.getTarget().getId().equals("R6")))
+            graphManager.addConnection("R5", "R6", 7, 0);
+        if (!graphManager.getAllEdges().stream().anyMatch(e -> e.getSource().getId().equals("R6") && e.getTarget().getId().equals("R4")))
+            graphManager.addConnection("R6", "R4", 10, 2);
+        if (!graphManager.getAllEdges().stream().anyMatch(e -> e.getSource().getId().equals("R6") && e.getTarget().getId().equals("Internet")))
+            graphManager.addConnection("R6", "Internet", 18, 1);
 
         // Randomly modify the graph (congestion, latency, nodes, edges)
         updateGraphDynamically(graphManager);
