@@ -57,7 +57,16 @@
         "source": "R9",
         "target": "R2",
         "latency": 10,
-        "congestion": 0
+        "congestion": 0,
+        "id": "0a5c9972-0fd6-46fa-b4cc-7f9835a8dd61"
+      }
+    },
+    {
+      "data": {
+        "id": "R4",
+        "label": "R4",
+        "type": "Lab",
+        "priority": 1
       }
     }
   ]
