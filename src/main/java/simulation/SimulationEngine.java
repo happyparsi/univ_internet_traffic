@@ -20,7 +20,7 @@ public class SimulationEngine {
         if (!graphManager.getNodes().containsKey("R6")) graphManager.addRouter("R6", "DataCenter", 1);
         if (!graphManager.getNodes().containsKey("Internet")) graphManager.addRouter("Internet", "Gateway", 0);
 
-        if (graphManager.getAllEdges().stream().noneMatch(e -> e.getSource().getId().equals("R1") && e.getTarget().getId().equals("R2")))
+        if (!graphManager.getAllEdges().stream().anyMatch(e -> e.getSource().getId().equals("R1") && e.getTarget().getId().equals("R2")))
             graphManager.addConnection("R1", "R2", 10, 1);
         if (!graphManager.getAllEdges().stream().anyMatch(e -> e.getSource().getId().equals("R2") && e.getTarget().getId().equals("R3")))
             graphManager.addConnection("R2", "R3", 8, 2);
