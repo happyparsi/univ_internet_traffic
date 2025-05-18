@@ -11,7 +11,7 @@ public class SimulationEngine {
         // Load user-added nodes and edges
         graphManager.loadUserGraphData("src/main/resources/visualization/userGraphData.json");
 
-        // Initial graph setup (only if not already added by user)
+        // Initial graph setup
         if (!graphManager.getNodes().containsKey("R1")) graphManager.addRouter("R1", "Lab", 1);
         if (!graphManager.getNodes().containsKey("R2")) graphManager.addRouter("R2", "Classroom", 2);
         if (!graphManager.getNodes().containsKey("R3")) graphManager.addRouter("R3", "Library", 3);

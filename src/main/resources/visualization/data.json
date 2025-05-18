@@ -44,8 +44,8 @@
       "data": {
         "id": "R8",
         "label": "R8",
-        "type": "Classroom",
-        "priority": 2
+        "type": "Admin",
+        "priority": 4
       }
     },
     {
@@ -66,7 +66,7 @@
     },
     {
       "data": {
-        "latency": 8,
+        "latency": 5,
         "source": "R1",
         "congestion": 0,
         "target": "R2"
@@ -74,7 +74,7 @@
     },
     {
       "data": {
-        "latency": 9,
+        "latency": 13,
         "source": "R2",
         "congestion": 0,
         "target": "R3"
@@ -90,7 +90,15 @@
     },
     {
       "data": {
-        "latency": 24,
+        "latency": 16,
+        "source": "R4",
+        "congestion": 0,
+        "target": "Internet"
+      }
+    },
+    {
+      "data": {
+        "latency": 15,
         "source": "R1",
         "congestion": 0,
         "target": "R3"
@@ -98,15 +106,15 @@
     },
     {
       "data": {
-        "latency": 29,
+        "latency": 26,
         "source": "R2",
-        "congestion": 2,
+        "congestion": 3,
         "target": "Internet"
       }
     },
     {
       "data": {
-        "latency": 12,
+        "latency": 13,
         "source": "R5",
         "congestion": 0,
         "target": "R1"
@@ -114,7 +122,7 @@
     },
     {
       "data": {
-        "latency": 6,
+        "latency": 4,
         "source": "R5",
         "congestion": 0,
         "target": "R6"
@@ -130,10 +138,18 @@
     },
     {
       "data": {
-        "latency": 17,
+        "latency": 21,
         "source": "R6",
         "congestion": 0,
         "target": "Internet"
+      }
+    },
+    {
+      "data": {
+        "latency": 13,
+        "source": "R2",
+        "congestion": 0,
+        "target": "R1"
       }
     }
   ]
