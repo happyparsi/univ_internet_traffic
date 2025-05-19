@@ -2,27 +2,18 @@
   "elements": [
     {
       "data": {
-        "id": "R5",
-        "label": "R5",
+        "id": "R1",
+        "label": "R1",
+        "type": "Lab",
+        "priority": 1
+      }
+    },
+    {
+      "data": {
+        "id": "R2",
+        "label": "R2",
         "type": "Classroom",
-        "priority": 2
-      }
-    },
-    {
-      "data": {
-        "source": "R5",
-        "target": "R2",
-        "latency": 10,
-        "congestion": 3,
-        "id": "d2b1f477-374c-4942-b7fa-82faab25f576"
-      }
-    },
-    {
-      "data": {
-        "source": "R8",
-        "target": "R2",
-        "latency": 10,
-        "congestion": 2
+        "priority": 3
       }
     }
   ]

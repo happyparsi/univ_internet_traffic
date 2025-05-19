@@ -93,7 +93,7 @@ public class SimulationEngine {
 
     private static void updateGraphDynamically(RouterGraphManager graphManager) {
         Random rand = new Random();
-        String[] nodeTypes = {"Lab", "Classroom", "Library", "Cafeteria", "Admin", "DataCenter", "Server"};
+        String[] nodeTypes = {"Lab", "Classroom", "Library", "Cafeteria", "Admin", "DataCenter", "Server","Gateway"};
 
         // Update congestion and latency for existing edges
         for (Edge edge : graphManager.getAllEdges()) {

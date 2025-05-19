@@ -5,7 +5,7 @@
         "id": "R2",
         "label": "R2",
         "type": "Classroom",
-        "priority": 2
+        "priority": 3
       }
     },
     {
@@ -18,17 +18,9 @@
     },
     {
       "data": {
-        "id": "R4",
-        "label": "R4",
-        "type": "Cafeteria",
-        "priority": 4
-      }
-    },
-    {
-      "data": {
         "id": "R5",
         "label": "R5",
-        "type": "Classroom",
+        "type": "Admin",
         "priority": 2
       }
     },
@@ -38,14 +30,6 @@
         "label": "R6",
         "type": "DataCenter",
         "priority": 1
-      }
-    },
-    {
-      "data": {
-        "id": "R8",
-        "label": "R8",
-        "type": "Server",
-        "priority": 4
       }
     },
     {
@@ -66,15 +50,15 @@
     },
     {
       "data": {
-        "latency": 10,
+        "latency": 7,
         "source": "R1",
-        "congestion": 1,
+        "congestion": 0,
         "target": "R2"
       }
     },
     {
       "data": {
-        "latency": 6,
+        "latency": 10,
         "source": "R2",
         "congestion": 0,
         "target": "R3"
@@ -82,23 +66,7 @@
     },
     {
       "data": {
-        "latency": 1,
-        "source": "R3",
-        "congestion": 0,
-        "target": "R4"
-      }
-    },
-    {
-      "data": {
-        "latency": 19,
-        "source": "R4",
-        "congestion": 0,
-        "target": "Internet"
-      }
-    },
-    {
-      "data": {
-        "latency": 23,
+        "latency": 25,
         "source": "R1",
         "congestion": 0,
         "target": "R3"
@@ -108,13 +76,13 @@
       "data": {
         "latency": 26,
         "source": "R2",
-        "congestion": 0,
+        "congestion": 2,
         "target": "Internet"
       }
     },
     {
       "data": {
-        "latency": 9,
+        "latency": 14,
         "source": "R5",
         "congestion": 0,
         "target": "R1"
@@ -123,17 +91,25 @@
     {
       "data": {
         "latency": 5,
-        "source": "R6",
+        "source": "R5",
         "congestion": 0,
-        "target": "R4"
+        "target": "R6"
       }
     },
     {
       "data": {
-        "latency": 14,
+        "latency": 22,
         "source": "R6",
         "congestion": 0,
         "target": "Internet"
+      }
+    },
+    {
+      "data": {
+        "latency": 5,
+        "source": "R3",
+        "congestion": 0,
+        "target": "R5"
       }
     }
   ]

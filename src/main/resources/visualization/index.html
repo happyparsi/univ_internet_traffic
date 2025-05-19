@@ -42,7 +42,7 @@
         }
         .controls h3 {
             margin-top: 0;
-            color: #8200d9;
+            color: #9d56d8;
         }
         .controls label {
             display: block;
@@ -55,12 +55,12 @@
             border-radius: 4px;
         }
         .controls button {
-            background-color: #bb5fef;
+            background-color: #ae63ec;
             color: white;
             cursor: pointer;
         }
         .controls button:hover {
-            background-color: #a456ed;
+            background-color: #946bdc;
         }
         .stats-table {
             width: 100%;
@@ -74,7 +74,7 @@
             text-align: left;
         }
         .stats-table th {
-            background-color: #a65ae4;
+            background-color: #a656e8;
             color: white;
         }
         .stats-table tr:nth-child(even) {
@@ -247,36 +247,57 @@
     }
 
     function mergeGraphData() {
-        const mergedElements = [...graphData.elements];
-        const existingNodeIds = new Set(mergedElements.filter(el => el.data.id).map(el => el.data.id));
-        const existingEdges = new Set(mergedElements.filter(el => el.data.source && el.data.target)
-            .map(el => `${el.data.source}-${el.data.target}`));
+        const mergedElements = [];
+        const existingNodeIds = new Set();
+        const edgeKeys = new Set();
 
-        userGraphData.elements.forEach(element => {
-            if (element.data.id && !existingNodeIds.has(element.data.id)) {
-                mergedElements.push(element);
-                existingNodeIds.add(element.data.id);
-            } else if (element.data.source && element.data.target && !existingEdges.has(`${element.data.source}-${element.data.target}`)) {
-                mergedElements.push(element);
-                existingEdges.add(`${element.data.source}-${element.data.target}`);
-            }
-        });
+        // First, add all nodes from graphData
+        graphData.elements
+            .filter(el => el.data && el.data.id)
+            .forEach(el => {
+                mergedElements.push(el);
+                existingNodeIds.add(el.data.id);
+            });
+
+        // Add nodes from userGraphData that don't exist in graphData
+        userGraphData.elements
+            .filter(el => el.data && el.data.id && !existingNodeIds.has(el.data.id))
+            .forEach(el => {
+                mergedElements.push(el);
+                existingNodeIds.add(el.data.id);
+            });
+
+        // Add edges from graphData
+        graphData.elements
+            .filter(el => el.data && el.data.source && el.data.target)
+            .forEach(el => {
+                const edgeKey = `${el.data.source}-${el.data.target}`;
+                mergedElements.push(el);
+                edgeKeys.add(edgeKey);
+            });
+
+        // Add or update edges from userGraphData
+        userGraphData.elements
+            .filter(el => el.data && el.data.source && el.data.target)
+            .forEach(el => {
+                const edgeKey = `${el.data.source}-${el.data.target}`;
+                const reverseEdgeKey = `${el.data.target}-${el.data.source}`;
+                // Remove the existing edge if it exists in either direction
+                const existingEdgeIndex = mergedElements.findIndex(e =>
+                    e.data && e.data.source && e.data.target &&
+                    (e.data.source === el.data.source && e.data.target === el.data.target ||
+                        e.data.source === el.data.target && e.data.target === el.data.source)
+                );
+                if (existingEdgeIndex !== -1) {
+                    mergedElements.splice(existingEdgeIndex, 1);
+                }
+                mergedElements.push(el);
+                edgeKeys.add(edgeKey);
+                edgeKeys.add(reverseEdgeKey);
+            });
 
         graphData.elements = mergedElements;
         console.log('Merged graphData:', graphData);
-    }
-
-    function checkForGraphUpdates() {
-        fetch('data.json', { method: 'HEAD' })
-            .then(response => {
-                const lastModified = new Date(response.headers.get('Last-Modified')).getTime();
-                if (lastModified > lastModifiedTime) {
-                    fetchGraphData();
-                }
-            })
-            .catch(error => {
-                console.error('Error checking for updates:', error);
-            });
     }
 
     function refreshGraphManually() {
@@ -301,6 +322,7 @@
         const newLatency = parseInt(document.getElementById('update-edge-latency').value);
         const newCongestion = parseInt(document.getElementById('update-edge-congestion').value);
 
+        // Validate inputs
         if (!source || !target) {
             alert('Please enter both Source and Target IDs.');
             return;
@@ -311,23 +333,57 @@
             return;
         }
 
-        // Check if the edge exists in either graphData or userGraphData
+        if (isNaN(newLatency) || newLatency < 1) {
+            alert('Please enter a valid Latency (minimum 1).');
+            return;
+        }
+
+        if (isNaN(newCongestion) || newCongestion < 0) {
+            alert('Please enter a valid Congestion (minimum 0).');
+            return;
+        }
+
+        // Check if the edge exists in either graphData or userGraphData, in either direction
         let edgeExists = false;
         let edgeIndex = -1;
+        let isInGraphData = false;
+        let isReverseDirection = false;
 
-        // Check graphData
+        // Check graphData (source -> target)
         edgeIndex = graphData.elements.findIndex(el =>
             el.data && el.data.source === source && el.data.target === target
         );
         if (edgeIndex !== -1) {
             edgeExists = true;
+            isInGraphData = true;
         } else {
-            // Check userGraphData
+            // Check graphData (target -> source)
+            edgeIndex = graphData.elements.findIndex(el =>
+                el.data && el.data.source === target && el.data.target === source
+            );
+            if (edgeIndex !== -1) {
+                edgeExists = true;
+                isInGraphData = true;
+                isReverseDirection = true;
+            }
+        }
+
+        // If not found in graphData, check userGraphData
+        if (!edgeExists) {
             edgeIndex = userGraphData.elements.findIndex(el =>
                 el.data && el.data.source === source && el.data.target === target
             );
             if (edgeIndex !== -1) {
                 edgeExists = true;
+            } else {
+                // Check userGraphData (target -> source)
+                edgeIndex = userGraphData.elements.findIndex(el =>
+                    el.data && el.data.source === target && el.data.target === source
+                );
+                if (edgeIndex !== -1) {
+                    edgeExists = true;
+                    isReverseDirection = true;
+                }
             }
         }
 
@@ -336,20 +392,42 @@
             return;
         }
 
+        // Adjust source and target if the edge is in reverse direction
+        const actualSource = isReverseDirection ? target : source;
+        const actualTarget = isReverseDirection ? source : target;
+
         // Update the edge properties
         const updatedEdge = {
-            data: { source, target, latency: newLatency, congestion: newCongestion }
+            data: { source: actualSource, target: actualTarget, latency: newLatency, congestion: newCongestion }
         };
+        console.log('Updating edge:', updatedEdge);
 
-        // If the edge is in userGraphData, update it there; otherwise, add to userGraphData
-        if (userGraphData.elements.some(el => el.data && el.data.source === source && el.data.target === target)) {
-            userGraphData.elements[edgeIndex] = updatedEdge;
+        // Update or add to userGraphData
+        const userEdgeIndex = userGraphData.elements.findIndex(el =>
+            el.data &&
+            ((el.data.source === actualSource && el.data.target === actualTarget) ||
+                (el.data.source === actualTarget && el.data.target === actualSource))
+        );
+        if (userEdgeIndex !== -1) {
+            userGraphData.elements[userEdgeIndex] = updatedEdge;
         } else {
             userGraphData.elements.push(updatedEdge);
         }
 
         // Save the updated userGraphData
         saveUserGraphData();
+
+        // If the edge exists in graphData, update it there as well
+        if (isInGraphData) {
+            const graphEdgeIndex = graphData.elements.findIndex(el =>
+                el.data &&
+                ((el.data.source === actualSource && el.data.target === actualTarget) ||
+                    (el.data.source === actualTarget && el.data.target === actualSource))
+            );
+            if (graphEdgeIndex !== -1) {
+                graphData.elements[graphEdgeIndex] = updatedEdge;
+            }
+        }
 
         // Update graphData by merging
         mergeGraphData();
@@ -477,7 +555,7 @@
                     }
                 },
                 {
-                    selector: 'edge[congestion > 2]',
+                    selector: 'edge[congestion > 3]',
                     style: {
                         'line-color': '#FF4136',
                         'width': 6
