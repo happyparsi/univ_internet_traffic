@@ -10,6 +10,12 @@ public class LoadBalancer {
     }
 
     public List<String> getOptimalPath(UserRequest request, String destinationId) {
+        // Check for unregistered user
+        if (request.getIpAddress().equals("0.0.0.0")) {
+            System.out.println("[LoadBalancer] User not registered: " + request.getUserType());
+            return new ArrayList<>();
+        }
+
         String startId = request.getSourceRouter().getId();
         int penalty = calculatePenalty(request);
 

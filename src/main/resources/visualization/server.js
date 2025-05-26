@@ -1,22 +1,53 @@
 const express = require('express');
 const fs = require('fs').promises;
 const path = require('path');
+
 const app = express();
+const port = 8080;
 
 app.use(express.json());
-app.use(express.static('.'));
+app.use(express.static(__dirname));
 
-app.post('/saveUserGraphData', async (req, res) => {
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/data.json', async (req, res) => {
     try {
-        const userGraphData = req.body;
-        await fs.writeFile(path.join(__dirname, 'userGraphData.json'), JSON.stringify(userGraphData, null, 2));
-        res.status(200).send('User graph data saved successfully');
-    } catch (error) {
-        console.error('Error saving user graph data:', error);
-        res.status(500).send('Failed to save user graph data');
+        const data = await fs.readFile('data.json', 'utf8');
+        res.json(JSON.parse(data));
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to read data.json' });
     }
 });
 
-app.listen(8080, () => {
-    console.log('Server running on http://localhost:8080');
+app.get('/userGraphData.json', async (req, res) => {
+    try {
+        const data = await fs.readFile('userGraphData.json', 'utf8');
+        res.json(JSON.parse(data));
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to read userGraphData.json' });
+    }
+});
+
+app.post('/saveUserGraphData', async (req, res) => {
+    try {
+        await fs.writeFile('userGraphData.json', JSON.stringify(req.body, null, 2));
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to save userGraphData.json' });
+    }
+});
+
+app.post('/saveGraphData', async (req, res) => {
+    try {
+        await fs.writeFile('data.json', JSON.stringify(req.body, null, 2));
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to save data.json' });
+    }
+});
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
 });

@@ -5,163 +5,88 @@
     <title>Smart Traffic Manager - Network Visualization</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            display: flex;
-            flex-direction: row;
-            height: 100vh;
-        }
-        .left-panel {
-            width: 40%;
-            padding: 20px;
-            background-color: #f5f7fa;
-            overflow-y: auto;
-        }
-        .right-panel {
-            width: 60%;
-            padding: 20px;
-            background-color: #e8eef4;
-        }
-        #cy {
-            width: 100%;
-            height: 100%;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-        }
-        .controls {
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #e8eef4;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .controls h3 {
-            margin-top: 0;
-            color: #9d56d8;
-        }
-        .controls label {
-            display: block;
-            margin: 5px 0;
-        }
-        .controls input, .controls select, .controls button {
-            margin: 5px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .controls button {
-            background-color: #ae63ec;
-            color: white;
-            cursor: pointer;
-        }
-        .controls button:hover {
-            background-color: #946bdc;
-        }
-        .stats-table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .stats-table th, .stats-table td {
-            padding: 10px;
-            border: 1px solid #ccc;
-            text-align: left;
-        }
-        .stats-table th {
-            background-color: #a656e8;
-            color: white;
-        }
-        .stats-table tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        .note {
-            font-size: 12px;
-            color: #555;
-            margin: 5px 0;
-        }
-    </style>
 </head>
 <body>
 <div class="container">
-    <div class="left-panel">
-        <h1>Smart Traffic Manager Network</h1>
-        <div class="controls">
-            <h3>Add Router</h3>
-            <label>Router ID: <input type="text" id="add-router-id" placeholder="e.g., R7"></label>
-            <label>Type: <select id="add-router-type">
-                <option value="Lab">Lab</option>
-                <option value="Classroom">Classroom</option>
-                <option value="Library">Library</option>
-                <option value="Cafeteria">Cafeteria</option>
-                <option value="Admin">Admin</option>
-                <option value="DataCenter">DataCenter</option>
-                <option value="Server">Server</option>
-            </select></label>
-            <label>Priority: <input type="number" id="add-router-priority" value="1" min="0"></label>
-            <button onclick="addRouter()">Add Router</button>
-
-            <h3>Add Edge</h3>
-            <label>Source ID: <input type="text" id="add-edge-source" placeholder="e.g., R1"></label>
-            <label>Target ID: <input type="text" id="add-edge-target" placeholder="e.g., R2"></label>
-            <label>Latency: <input type="number" id="add-edge-latency" value="10" min="1"></label>
-            <label>Congestion: <input type="number" id="add-edge-congestion" value="0" min="0"></label>
-            <button onclick="addEdge()">Add Edge</button>
-
-            <h3>Simulate Request</h3>
-            <label>Source Router: <select id="sim-source">
-                <option value="R1">R1 (Lab)</option>
-                <option value="R5">R5 (Admin)</option>
-                <option value="R6">R6 (DataCenter)</option>
-            </select></label>
-            <label>User Type: <select id="sim-user-type">
-                <option value="Student">Student</option>
-                <option value="Staff">Staff</option>
-            </select></label>
-            <label>Domain: <select id="sim-domain">
-                <option value="facebook.com">facebook.com</option>
-                <option value="intranet.edu">intranet.edu</option>
-                <option value="youtube.com">youtube.com</option>
-                <option value="reddit.com">reddit.com</option>
-                <option value="netflix.com">netflix.com</option>
-                <option value="email.edu">email.edu</option>
-                <option value="twitch.tv">twitch.tv</option>
-            </select></label>
-            <button onclick="simulateRequest()">Send Request</button>
-
-            <h3>Refresh Graph</h3>
-            <button onclick="refreshGraphManually()">Refresh Graph</button>
-            <div class="note">Note: Click the button to manually refresh the graph after running SimulationEngine.</div>
-
-            <h3>Update Edge Properties</h3>
-            <label>Source ID: <input type="text" id="update-edge-source" placeholder="e.g., R1"></label>
-            <label>Target ID: <input type="text" id="update-edge-target" placeholder="e.g., R2"></label>
-            <label>New Latency: <input type="number" id="update-edge-latency" value="10" min="1"></label>
-            <label>New Congestion: <input type="number" id="update-edge-congestion" value="0" min="0"></label>
-            <button onclick="updateEdgeProperties()">Update and Redraw Graph</button>
-        </div>
-        <table class="stats-table" id="stats-table">
-            <thead>
-            <tr>
-                <th>Source</th>
-                <th>User Type</th>
-                <th>Domain</th>
-                <th>Path</th>
-                <th>Total Latency</th>
-                <th>Total Congestion</th>
-                <th>Proxy Status</th>
-            </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <div class="toolbar">
+        <button onclick="addRouter()" title="Add Router"><span class="icon">🖥️</span> Add Router</button>
+        <button onclick="addEdge()" title="Add Edge"><span class="icon">🔗</span> Add Edge</button>
+        <button onclick="simulateRequest()" title="Simulate Request"><span class="icon">🚀</span> Simulate</button>
+        <button onclick="refreshGraphManually()" title="Refresh Graph"><span class="icon">🔄</span> Refresh</button>
+        <button onclick="updateEdgeProperties()" title="Update Edge"><span class="icon">⚙️</span> Update Edge</button>
     </div>
-    <div class="right-panel">
-        <div id="cy"></div>
+    <div class="main-content">
+        <div class="left-panel">
+            <h1>Smart Traffic Manager</h1>
+            <div class="controls">
+                <h3>Add Router</h3>
+                <label>Router ID: <input type="text" id="add-router-id" placeholder="e.g., R7"></label>
+                <label>Type: <select id="add-router-type">
+                    <option value="Lab">Lab</option>
+                    <option value="Classroom">Classroom</option>
+                    <option value="Library">Library</option>
+                    <option value="Cafeteria">Cafeteria</option>
+                    <option value="Admin">Admin</option>
+                    <option value="DataCenter">DataCenter</option>
+                    <option value="Server">Server</option>
+                </select></label>
+                <label>Priority: <input type="number" id="add-router-priority" value="1" min="0"></label>
+
+                <h3>Add Edge</h3>
+                <label>Source ID: <input type="text" id="add-edge-source" placeholder="e.g., R1"></label>
+                <label>Target ID: <input type="text" id="add-edge-target" placeholder="e.g., R2"></label>
+                <label>Latency: <input type="number" id="add-edge-latency" value="10" min="1"></label>
+                <label>Congestion: <input type="number" id="add-edge-congestion" value="0" min="0"></label>
+
+                <h3>Simulate Request</h3>
+                <label>Source Router: <select id="sim-source">
+                    <option value="R1">R1 (Lab)</option>
+                    <option value="R5">R5 (Admin)</option>
+                    <option value="R6">R6 (DataCenter)</option>
+                </select></label>
+                <label>User Type: <select id="sim-user-type">
+                    <option value="Student">Student</option>
+                    <option value="Staff">Staff</option>
+                    <option value="Guest">Guest</option>
+                </select></label>
+                <label>Domain: <select id="sim-domain">
+                    <option value="facebook.com">facebook.com</option>
+                    <option value="intranet.edu">intranet.edu</option>
+                    <option value="youtube.com">youtube.com</option>
+                    <option value="reddit.com">reddit.com</option>
+                    <option value="netflix.com">netflix.com</option>
+                    <option value="email.edu">email.edu</option>
+                    <option value="twitch.tv">twitch.tv</option>
+                </select></label>
+
+                <h3>Update Edge Properties</h3>
+                <label>Source ID: <input type="text" id="update-edge-source" placeholder="e.g., R1"></label>
+                <label>Target ID: <input type="text" id="update-edge-target" placeholder="e.g., R2"></label>
+                <label>New Latency: <input type="number" id="update-edge-latency" value="10" min="1"></label>
+                <label>New Congestion: <input type="number" id="update-edge-congestion" value="0" min="0"></label>
+            </div>
+            <div class="note">Note: Click Refresh to update the graph after running SimulationEngine.</div>
+        </div>
+        <div class="right-panel">
+            <div id="cy"></div>
+            <div class="stats-table-wrapper">
+                <table class="stats-table" id="stats-table">
+                    <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>User Type</th>
+                        <th>IP Address</th>
+                        <th>Domain</th>
+                        <th>Path</th>
+                        <th>Total Latency</th>
+                        <th>Total Congestion</th>
+                        <th>Proxy Status</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -169,81 +94,145 @@
     let cy;
     let graphData = { elements: [] };
     let userGraphData = { elements: [] };
-    let proxyCache = new Set(['intranet.edu']);
+    let proxyCache = [];
     let proxyLoad = 0;
     const proxyMaxCapacity = 2;
     let lastModifiedTime = 0;
+    let recentRequests = [];
+    const CACHE_EXPIRATION_MS = 5 * 60 * 1000;
 
-    // Default graph data in case data.json fails to load
     const defaultGraphData = {
         elements: [
-            { data: { id: 'R1', label: 'R1', type: 'Lab', priority: 1 } },
-            { data: { id: 'R2', label: 'R2', type: 'Classroom', priority: 2 } },
-            { data: { id: 'Internet', label: 'Internet', type: 'Gateway', priority: 0 } },
+            { data: { id: 'R1', label: 'R1', type: 'Lab', priority: 1, ipAddress: '10.0.0.1', subnet: '10.0.1.0/24' } },
+            { data: { id: 'R2', label: 'R2', type: 'Classroom', priority: 2, ipAddress: '10.0.0.2', subnet: '10.0.2.0/24' } },
+            { data: { id: 'Internet', label: 'Internet', type: 'Gateway', priority: 0, ipAddress: '10.0.0.254', subnet: '0.0.0.0/0' } },
             { data: { source: 'R1', target: 'R2', latency: 10, congestion: 1 } },
             { data: { source: 'R2', target: 'Internet', latency: 15, congestion: 0 } }
         ]
     };
 
-    // Initial load of the graph
+    proxyCache.push({ domain: 'intranet.edu', lastUsed: Date.now(), isPersistent: true });
+
     fetchGraphData();
 
-    function fetchGraphData() {
-        // Store the current graph data as a fallback
-        const previousGraphData = JSON.parse(JSON.stringify(graphData));
-        Promise.all([
-            fetch('data.json', { cache: 'no-store' })
-                .catch(err => {
-                    console.error('Fetch error for data.json:', err.message);
+    function updateProxyCache(domain, userType) {
+        const now = Date.now();
+        proxyCache = proxyCache.filter(entry => entry.isPersistent || (now - entry.lastUsed < CACHE_EXPIRATION_MS));
+
+        const cacheEntryIndex = proxyCache.findIndex(entry => entry.domain === domain);
+        let proxyStatus = '';
+
+        const isEduDomain = domain.includes('.edu');
+        const isSocialMedia = ['facebook.com', 'youtube.com', 'reddit.com', 'twitch.tv'].includes(domain);
+        const shouldBePersistent = isEduDomain && userType === 'Staff';
+
+        if (cacheEntryIndex !== -1) {
+            proxyCache[cacheEntryIndex].lastUsed = now;
+            const [entry] = proxyCache.splice(cacheEntryIndex, 1);
+            proxyCache.unshift(entry);
+            proxyStatus = 'Cache HIT';
+        } else {
+            if (proxyCache.length >= proxyMaxCapacity && proxyLoad >= proxyMaxCapacity) {
+                const lruIndex = proxyCache.findIndex(entry => !entry.isPersistent);
+                if (lruIndex !== -1) {
+                    proxyCache.splice(lruIndex, 1);
+                    proxyLoad--;
+                } else {
+                    proxyStatus = 'Overloaded';
+                    return proxyStatus;
+                }
+            }
+
+            proxyCache.unshift({ domain, lastUsed: now, isPersistent: shouldBePersistent });
+            proxyLoad++;
+            proxyStatus = 'Cache MISS';
+
+            if (isSocialMedia && userType === 'Student' && Math.random() < 0.3) {
+                proxyCache.shift();
+                proxyLoad--;
+                proxyStatus = 'Cache MISS (Evicted)';
+            }
+        }
+
+        return proxyStatus;
+    }
+
+    async function fetchGraphData(forceFetch = false) {
+        try {
+            const previousGraphData = JSON.parse(JSON.stringify(graphData));
+            console.log('Fetching graph data at:', new Date().toISOString());
+
+            const [dataResponse, userDataResponse] = await Promise.all([
+                fetch('data.json', { cache: 'no-store' }).catch(err => {
+                    console.error('Error fetching data.json:', err);
                     return { ok: false };
                 }),
-            fetch('userGraphData.json', { cache: 'no-store' })
-                .catch(() => ({ ok: false }))
-        ])
-            .then(([dataResponse, userDataResponse]) => {
-                if (!dataResponse.ok) {
-                    console.error('Failed to load data.json:', {
-                        status: dataResponse.status || 'N/A',
-                        statusText: dataResponse.statusText || 'No response',
-                        url: 'data.json'
-                    });
-                    alert('Failed to load data.json. Please ensure:\n1. SimulationEngine has been run to generate the file in src/main/resources/visualization/.\n2. The server (server.js) is running on http://localhost:8080.\n3. data.json is accessible at http://localhost:8080/data.json.');
-                    throw new Error('Network response was not ok for data.json');
+                fetch('userGraphData.json', { cache: 'no-store' }).catch(err => {
+                    console.error('Error fetching userGraphData.json:', err);
+                    return { ok: false };
+                })
+            ]);
+
+            let data = null;
+            let userData = { elements: [] };
+
+            if (dataResponse.ok) {
+                data = await dataResponse.json();
+                console.log('data.json loaded:', data);
+            } else {
+                console.warn('data.json fetch failed.');
+            }
+
+            if (userDataResponse.ok) {
+                userData = await userDataResponse.json();
+                console.log('userGraphData.json loaded:', userData);
+            } else {
+                console.warn('userGraphData.json fetch failed. Checking localStorage backup...');
+                const backup = localStorage.getItem('userGraphDataBackup');
+                if (backup) {
+                    userData = JSON.parse(backup);
+                    console.log('Loaded userGraphData from localStorage:', userData);
                 }
-                const dataPromise = dataResponse.json().catch(err => {
-                    console.error('Error parsing data.json:', err.message);
-                    throw err;
-                });
-                const userDataPromise = userDataResponse.ok ? userDataResponse.json() : Promise.resolve({ elements: [] });
-                return Promise.all([dataPromise, userDataPromise]);
-            })
-            .then(([data, userData]) => {
-                graphData = data;
-                userGraphData = userData;
-                console.log('Loaded graphData:', graphData);
-                console.log('Loaded userGraphData:', userGraphData);
-                mergeGraphData();
-                // Only reinitialize the graph if there are elements to display
-                if (graphData.elements && graphData.elements.length > 0) {
-                    initializeGraph();
-                    updateSourceRouterOptions();
-                    lastModifiedTime = Date.now();
-                } else {
-                    console.warn('No elements to display after fetching data. Reverting to previous graph.');
-                    graphData = previousGraphData;
-                    alert('No valid data to display. Reverting to previous graph state.');
-                }
-            })
-            .catch(error => {
-                console.error('Error loading graph data:', error);
-                // Revert to previous graph data instead of default
-                graphData = previousGraphData;
+            }
+
+            if (!data && !userData.elements.length) {
+                console.warn('Both data sources failed. Falling back to default graph data.');
+                graphData = JSON.parse(JSON.stringify(defaultGraphData));
                 userGraphData = { elements: [] };
-                mergeGraphData();
+            } else {
+                if (data) {
+                    graphData = data;
+                } else if (!forceFetch) {
+                    graphData = previousGraphData;
+                } else {
+                    graphData = JSON.parse(JSON.stringify(defaultGraphData));
+                }
+                userGraphData = userData;
+            }
+
+            mergeGraphData();
+            console.log('Merged graph data:', graphData);
+
+            if (graphData.elements && graphData.elements.length > 0) {
                 initializeGraph();
                 updateSourceRouterOptions();
-                alert('Failed to load new graph data. Reverted to previous graph state. Check the console for details.');
-            });
+                lastModifiedTime = Date.now();
+                console.log('Graph updated successfully at:', new Date().toISOString());
+            } else {
+                console.warn('No valid data to display. Reverting to previous graph state.');
+                graphData = previousGraphData;
+                initializeGraph();
+                updateSourceRouterOptions();
+            }
+        } catch (error) {
+            console.error('Error in fetchGraphData:', error);
+            graphData = JSON.parse(JSON.stringify(defaultGraphData));
+            userGraphData = { elements: [] };
+            mergeGraphData();
+            initializeGraph();
+            updateSourceRouterOptions();
+            alert('Failed to load graph data. Reverted to default graph state. Check console for details.');
+        }
     }
 
     function mergeGraphData() {
@@ -251,38 +240,36 @@
         const existingNodeIds = new Set();
         const edgeKeys = new Set();
 
-        // First, add all nodes from graphData
-        graphData.elements
+        (graphData.elements || [])
             .filter(el => el.data && el.data.id)
             .forEach(el => {
-                mergedElements.push(el);
+                mergedElements.push(JSON.parse(JSON.stringify(el)));
                 existingNodeIds.add(el.data.id);
             });
 
-        // Add nodes from userGraphData that don't exist in graphData
-        userGraphData.elements
+        (userGraphData.elements || [])
             .filter(el => el.data && el.data.id && !existingNodeIds.has(el.data.id))
             .forEach(el => {
-                mergedElements.push(el);
+                mergedElements.push(JSON.parse(JSON.stringify(el)));
                 existingNodeIds.add(el.data.id);
             });
 
-        // Add edges from graphData
-        graphData.elements
+        (graphData.elements || [])
             .filter(el => el.data && el.data.source && el.data.target)
             .forEach(el => {
                 const edgeKey = `${el.data.source}-${el.data.target}`;
-                mergedElements.push(el);
-                edgeKeys.add(edgeKey);
+                if (!edgeKeys.has(edgeKey)) {
+                    mergedElements.push(JSON.parse(JSON.stringify(el)));
+                    edgeKeys.add(edgeKey);
+                    edgeKeys.add(`${el.data.target}-${el.data.source}`);
+                }
             });
 
-        // Add or update edges from userGraphData
-        userGraphData.elements
+        (userGraphData.elements || [])
             .filter(el => el.data && el.data.source && el.data.target)
             .forEach(el => {
                 const edgeKey = `${el.data.source}-${el.data.target}`;
                 const reverseEdgeKey = `${el.data.target}-${el.data.source}`;
-                // Remove the existing edge if it exists in either direction
                 const existingEdgeIndex = mergedElements.findIndex(e =>
                     e.data && e.data.source && e.data.target &&
                     (e.data.source === el.data.source && e.data.target === el.data.target ||
@@ -291,154 +278,228 @@
                 if (existingEdgeIndex !== -1) {
                     mergedElements.splice(existingEdgeIndex, 1);
                 }
-                mergedElements.push(el);
+                mergedElements.push(JSON.parse(JSON.stringify(el)));
                 edgeKeys.add(edgeKey);
                 edgeKeys.add(reverseEdgeKey);
             });
 
         graphData.elements = mergedElements;
-        console.log('Merged graphData:', graphData);
+        console.log('After merging, graphData elements:', graphData.elements);
     }
 
-    function refreshGraphManually() {
-        fetch('data.json', { method: 'HEAD' })
-            .then(response => {
-                const lastModified = new Date(response.headers.get('Last-Modified')).getTime();
-                if (lastModified > lastModifiedTime) {
-                    fetchGraphData();
-                } else {
-                    alert('No updates to data.json. Run the SimulationEngine if you want to update the graph.');
-                }
-            })
-            .catch(error => {
-                console.error('Error checking for updates:', error);
-                alert('Error checking for updates. Please ensure the server is running and data.json is accessible.');
-            });
-    }
+    async function refreshGraphManually() {
+        try {
+            const response = await fetch('data.json', { method: 'HEAD' });
+            const lastModified = new Date(response.headers.get('Last-Modified')).getTime();
+            console.log('Last-Modified timestamp:', lastModified, 'Last known timestamp:', lastModifiedTime);
 
-    function updateEdgeProperties() {
-        const source = document.getElementById('update-edge-source').value.trim();
-        const target = document.getElementById('update-edge-target').value.trim();
-        const newLatency = parseInt(document.getElementById('update-edge-latency').value);
-        const newCongestion = parseInt(document.getElementById('update-edge-congestion').value);
-
-        // Validate inputs
-        if (!source || !target) {
-            alert('Please enter both Source and Target IDs.');
-            return;
-        }
-
-        if (source === target) {
-            alert('Source and Target cannot be the same.');
-            return;
-        }
-
-        if (isNaN(newLatency) || newLatency < 1) {
-            alert('Please enter a valid Latency (minimum 1).');
-            return;
-        }
-
-        if (isNaN(newCongestion) || newCongestion < 0) {
-            alert('Please enter a valid Congestion (minimum 0).');
-            return;
-        }
-
-        // Check if the edge exists in either graphData or userGraphData, in either direction
-        let edgeExists = false;
-        let edgeIndex = -1;
-        let isInGraphData = false;
-        let isReverseDirection = false;
-
-        // Check graphData (source -> target)
-        edgeIndex = graphData.elements.findIndex(el =>
-            el.data && el.data.source === source && el.data.target === target
-        );
-        if (edgeIndex !== -1) {
-            edgeExists = true;
-            isInGraphData = true;
-        } else {
-            // Check graphData (target -> source)
-            edgeIndex = graphData.elements.findIndex(el =>
-                el.data && el.data.source === target && el.data.target === source
-            );
-            if (edgeIndex !== -1) {
-                edgeExists = true;
-                isInGraphData = true;
-                isReverseDirection = true;
-            }
-        }
-
-        // If not found in graphData, check userGraphData
-        if (!edgeExists) {
-            edgeIndex = userGraphData.elements.findIndex(el =>
-                el.data && el.data.source === source && el.data.target === target
-            );
-            if (edgeIndex !== -1) {
-                edgeExists = true;
+            if (isNaN(lastModified) || lastModified > lastModifiedTime) {
+                console.log('New or unavailable data detected. Forcing fetch of updated graph data...');
+                await fetchGraphData(true);
+                alert('Graph updated successfully.');
             } else {
-                // Check userGraphData (target -> source)
-                edgeIndex = userGraphData.elements.findIndex(el =>
-                    el.data && el.data.source === target && el.data.target === source
-                );
-                if (edgeIndex !== -1) {
-                    edgeExists = true;
-                    isReverseDirection = true;
-                }
+                console.log('No updates to data.json.');
+                alert('No updates to data.json. Run the SimulationEngine to update the graph.');
             }
+        } catch (error) {
+            console.error('Error in refreshGraphManually:', error);
+            console.log('HEAD request failed. Forcing fetch as a fallback...');
+            await fetchGraphData(true);
+            alert('Graph update attempted. Check console for details.');
         }
-
-        if (!edgeExists) {
-            alert('Edge does not exist. Please add the edge first.');
-            return;
-        }
-
-        // Adjust source and target if the edge is in reverse direction
-        const actualSource = isReverseDirection ? target : source;
-        const actualTarget = isReverseDirection ? source : target;
-
-        // Update the edge properties
-        const updatedEdge = {
-            data: { source: actualSource, target: actualTarget, latency: newLatency, congestion: newCongestion }
-        };
-        console.log('Updating edge:', updatedEdge);
-
-        // Update or add to userGraphData
-        const userEdgeIndex = userGraphData.elements.findIndex(el =>
-            el.data &&
-            ((el.data.source === actualSource && el.data.target === actualTarget) ||
-                (el.data.source === actualTarget && el.data.target === actualSource))
-        );
-        if (userEdgeIndex !== -1) {
-            userGraphData.elements[userEdgeIndex] = updatedEdge;
-        } else {
-            userGraphData.elements.push(updatedEdge);
-        }
-
-        // Save the updated userGraphData
-        saveUserGraphData();
-
-        // If the edge exists in graphData, update it there as well
-        if (isInGraphData) {
-            const graphEdgeIndex = graphData.elements.findIndex(el =>
-                el.data &&
-                ((el.data.source === actualSource && el.data.target === actualTarget) ||
-                    (el.data.source === actualTarget && el.data.target === actualSource))
-            );
-            if (graphEdgeIndex !== -1) {
-                graphData.elements[graphEdgeIndex] = updatedEdge;
-            }
-        }
-
-        // Update graphData by merging
-        mergeGraphData();
-
-        // Redraw the graph
-        initializeGraph();
-
-        alert('Edge properties updated and graph redrawn.');
     }
 
-    function addRouter() {
+    async function saveUserGraphData() {
+        try {
+            const response = await fetch('saveUserGraphData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userGraphData)
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            console.log('userGraphData saved successfully:', userGraphData);
+            return true;
+        } catch (error) {
+            console.error('Error saving user graph data:', error);
+            alert('Failed to save user graph data to server. Changes stored locally and will be applied on refresh.');
+            localStorage.setItem('userGraphDataBackup', JSON.stringify(userGraphData));
+            return false;
+        }
+    }
+
+    async function saveGraphData() {
+        try {
+            const response = await fetch('saveGraphData', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(graphData)
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            console.log('graphData saved successfully to data.json:', graphData);
+            return true;
+        } catch (error) {
+            console.error('Error saving graph data:', error);
+            alert('Failed to save graph data to server. Changes stored locally and will be applied on refresh.');
+            localStorage.setItem('graphDataBackup', JSON.stringify(graphData));
+            return false;
+        }
+    }
+
+    function initializeGraph() {
+        if (cy) {
+            cy.destroy();
+            console.log('Previous Cytoscape instance destroyed.');
+        }
+
+        cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: graphData.elements || [],
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        'background-color': '#c0c0c0',
+                        'background-image': 'https://upload.wikimedia.org/wikipedia/commons/6/6d/Router_icon.svg',
+                        'background-fit': 'cover',
+                        'background-opacity': 0,
+                        'label': 'data(label)',
+                        'color': '#000',
+                        'text-valign': 'center',
+                        'text-halign': 'center',
+                        'width': '80px',
+                        'height': '60px',
+                        'font-size': '12px',
+                        'border-width': 1,
+                        'border-color': '#000'
+                    }
+                },
+                {
+                    selector: 'node[type="Server"]',
+                    style: {
+                        'background-color': '#4a4a4a',
+                        'background-image': 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Server_icon.svg',
+                        'background-fit': 'cover',
+                        'background-opacity': 0,
+                        'width': '60px',
+                        'height': '80px',
+                        'shape': 'rectangle'
+                    }
+                },
+                {
+                    selector: 'node[type="Gateway"]',
+                    style: {
+                        'background-color': '#c0c0c0',
+                        'background-image': 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Cloud_icon.svg',
+                        'background-fit': 'cover',
+                        'background-opacity': 0,
+                        'shape': 'ellipse',
+                        'width': '70px',
+                        'height': '70px'
+                    }
+                },
+                {
+                    selector: 'node[type="DataCenter"]',
+                    style: {
+                        'background-color': '#4a4a4a',
+                        'background-image': 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Server_icon.svg',
+                        'background-fit': 'cover',
+                        'background-opacity': 0,
+                        'shape': 'hexagon',
+                        'width': '80px',
+                        'height': '80px'
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        'width': 2,
+                        'line-color': '#666',
+                        'target-arrow-color': '#666',
+                        'target-arrow-shape': 'triangle',
+                        'curve-style': 'bezier',
+                        'label': 'data(latency)',
+                        'text-rotation': 'autorotate',
+                        'font-size': '10px',
+                        'color': '#000',
+                        'transition-property': 'line-color, width, target-arrow-color',
+                        'transition-duration': '500ms'
+                    }
+                },
+                {
+                    selector: 'edge[congestion > 3]',
+                    style: {
+                        'line-color': '#b22222',
+                        'width': 4,
+                        'target-arrow-color': '#b22222'
+                    }
+                },
+                {
+                    selector: 'edge.active',
+                    style: {
+                        'line-color': '#00f',
+                        'width': 4,
+                        'target-arrow-color': '#00f'
+                    }
+                }
+            ],
+            layout: {
+                name: 'cose',
+                idealEdgeLength: 100,
+                nodeOverlap: 20,
+                refresh: 20,
+                fit: true,
+                padding: 30,
+                randomize: true,
+                componentSpacing: 100,
+                nodeRepulsion: 400000,
+                edgeElasticity: 100,
+                nestingFactor: 5,
+                gravity: 80,
+                numIter: 1000,
+                initialTemp: 200,
+                coolingFactor: 0.95,
+                minTemp: 1.0
+            }
+        });
+
+        console.log('Graph initialized with elements:', cy.elements().map(el => el.data()));
+
+        cy.on('tap', 'node', function(evt) {
+            var node = evt.target;
+            alert(`Node: ${node.data('id')}\nType: ${node.data('type')}\nPriority: ${node.data('priority')}`);
+        });
+
+        cy.on('tap', 'edge', function(evt) {
+            var edge = evt.target;
+            alert(`Edge: ${edge.data('source')} -> ${edge.data('target')}\nLatency: ${edge.data('latency')}\nCongestion: ${edge.data('congestion')}`);
+        });
+
+        cy.layout({ name: 'cose', fit: true }).run();
+    }
+
+    function updateSourceRouterOptions() {
+        const select = document.getElementById('sim-source');
+        select.innerHTML = '';
+        (graphData.elements || [])
+            .filter(el => el.data && el.data.id && el.data.type !== 'Gateway')
+            .forEach(el => {
+                const option = document.createElement('option');
+                option.value = el.data.id;
+                option.text = `${el.data.id} (${el.data.type})`;
+                select.appendChild(option);
+            });
+        console.log('Source router options updated:', select.innerHTML);
+    }
+
+    async function addRouter() {
         const id = document.getElementById('add-router-id').value.trim();
         const type = document.getElementById('add-router-type').value;
         const priority = parseInt(document.getElementById('add-router-priority').value);
@@ -453,18 +514,21 @@
             return;
         }
 
+        const ipAddress = `10.0.0.${graphData.elements.filter(el => el.data.id).length + 1}`;
+        const subnet = `10.0.${graphData.elements.filter(el => el.data.id).length + 1}.0/24`;
         const newNode = {
-            data: { id, label: id, type, priority }
+            data: { id, label: id, type, priority, ipAddress, subnet }
         };
         userGraphData.elements.push(newNode);
-        saveUserGraphData();
+        await saveUserGraphData();
         graphData.elements.push(newNode);
+        mergeGraphData();
         initializeGraph();
         updateSourceRouterOptions();
-        alert('Router added. Rerun SimulationEngine to include this in the simulation.');
+        alert('Router added and graph updated. Rerun SimulationEngine to include this in the simulation.');
     }
 
-    function addEdge() {
+    async function addEdge() {
         const source = document.getElementById('add-edge-source').value.trim();
         const target = document.getElementById('add-edge-target').value.trim();
         const latency = parseInt(document.getElementById('add-edge-latency').value);
@@ -496,167 +560,120 @@
             data: { source, target, latency, congestion }
         };
         userGraphData.elements.push(newEdge);
-        saveUserGraphData();
+        await saveUserGraphData();
         graphData.elements.push(newEdge);
+        mergeGraphData();
         initializeGraph();
-        alert('Edge added. Rerun SimulationEngine to include this in the simulation.');
+        alert('Edge added and graph updated. Rerun SimulationEngine to include this in the simulation.');
     }
 
-    function saveUserGraphData() {
-        fetch('saveUserGraphData', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(userGraphData)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to save user graph data');
-                }
-            })
-            .catch(error => {
-                console.error('Error saving user graph data:', error);
-                alert('Failed to save user graph data. Changes may not persist.');
-            });
-    }
+    async function updateEdgeProperties() {
+        const source = document.getElementById('update-edge-source').value.trim();
+        const target = document.getElementById('update-edge-target').value.trim();
+        const newLatency = parseInt(document.getElementById('update-edge-latency').value);
+        const newCongestion = parseInt(document.getElementById('update-edge-congestion').value);
 
-    function initializeGraph() {
-        if (cy) {
-            cy.destroy();
+        if (!source || !target) {
+            alert('Please enter both Source and Target IDs.');
+            return;
         }
-        cy = cytoscape({
-            container: document.getElementById('cy'),
-            elements: graphData.elements,
-            style: [
-                {
-                    selector: 'node',
-                    style: {
-                        'background-color': '#0074D9',
-                        'label': 'data(label)',
-                        'color': '#fff',
-                        'text-valign': 'center',
-                        'text-halign': 'center',
-                        'width': '40px',
-                        'height': '40px'
-                    }
-                },
-                {
-                    selector: 'edge',
-                    style: {
-                        'width': 3,
-                        'line-color': '#ccc',
-                        'target-arrow-color': '#ccc',
-                        'target-arrow-shape': 'triangle',
-                        'curve-style': 'bezier',
-                        'label': 'data(latency)',
-                        'text-rotation': 'autorotate',
-                        'font-size': '12px'
-                    }
-                },
-                {
-                    selector: 'edge[congestion > 3]',
-                    style: {
-                        'line-color': '#FF4136',
-                        'width': 6
-                    }
-                },
-                {
-                    selector: 'edge.active',
-                    style: {
-                        'line-color': '#0074D9',
-                        'width': 8,
-                        'target-arrow-color': '#0074D9'
-                    }
-                },
-                {
-                    selector: 'node[type="Gateway"]',
-                    style: {
-                        'background-color': '#FF4136',
-                        'shape': 'star'
-                    }
-                },
-                {
-                    selector: 'node[type="Lab"]',
-                    style: {
-                        'background-color': '#2ECC40'
-                    }
-                },
-                {
-                    selector: 'node[type="Classroom"]',
-                    style: {
-                        'background-color': '#FFDC00'
-                    }
-                },
-                {
-                    selector: 'node[type="Library"]',
-                    style: {
-                        'background-color': '#7FDBFF'
-                    }
-                },
-                {
-                    selector: 'node[type="Cafeteria"]',
-                    style: {
-                        'background-color': '#F012BE'
-                    }
-                },
-                {
-                    selector: 'node[type="Admin"]',
-                    style: {
-                        'background-color': '#85144b'
-                    }
-                },
-                {
-                    selector: 'node[type="DataCenter"]',
-                    style: {
-                        'background-color': '#001f3f',
-                        'shape': 'rectangle'
-                    }
-                },
-                {
-                    selector: 'node[type="Server"]',
-                    style: {
-                        'background-color': '#3D9970',
-                        'shape': 'diamond'
-                    }
-                }
-            ],
-            layout: {
-                name: 'cose',
-                idealEdgeLength: 150,
-                nodeOverlap: 20,
-                fit: true,
-                padding: 30
+
+        if (source === target) {
+            alert('Source and Target cannot be the same.');
+            return;
+        }
+
+        if (isNaN(newLatency) || newLatency < 1) {
+            alert('Please enter a valid Latency (minimum 1).');
+            return;
+        }
+
+        if (isNaN(newCongestion) || newCongestion < 0) {
+            alert('Please enter a valid Congestion (minimum 0).');
+            return;
+        }
+
+        let edgeExists = false;
+        let edgeIndex = -1;
+        let isInGraphData = false;
+        let isReverseDirection = false;
+
+        edgeIndex = graphData.elements.findIndex(el =>
+            el.data && el.data.source === source && el.data.target === target
+        );
+        if (edgeIndex !== -1) {
+            edgeExists = true;
+            isInGraphData = true;
+        } else {
+            edgeIndex = graphData.elements.findIndex(el =>
+                el.data && el.data.source === target && el.data.target === source
+            );
+            if (edgeIndex !== -1) {
+                edgeExists = true;
+                isInGraphData = true;
+                isReverseDirection = true;
             }
-        });
+        }
 
-        cy.on('tap', 'node', function(evt) {
-            var node = evt.target;
-            alert('Node: ' + node.data('id') + '\nType: ' + node.data('type') + '\nPriority: ' + node.data('priority'));
-        });
+        if (!edgeExists) {
+            edgeIndex = userGraphData.elements.findIndex(el =>
+                el.data && el.data.source === source && el.data.target === target
+            );
+            if (edgeIndex !== -1) {
+                edgeExists = true;
+            } else {
+                edgeIndex = userGraphData.elements.findIndex(el =>
+                    el.data && el.data.source === target && el.data.target === source
+                );
+                if (edgeIndex !== -1) {
+                    edgeExists = true;
+                    isReverseDirection = true;
+                }
+            }
+        }
 
-        cy.on('tap', 'edge', function(evt) {
-            var edge = evt.target;
-            alert('Edge: ' + edge.data('source') + ' -> ' + edge.data('target') + '\nLatency: ' + edge.data('latency') + '\nCongestion: ' + edge.data('congestion'));
-        });
+        if (!edgeExists) {
+            alert('Edge does not exist. Please add the edge first.');
+            return;
+        }
 
-        console.log('Graph initialized with', cy.nodes().length, 'nodes and', cy.edges().length, 'edges');
+        const actualSource = isReverseDirection ? target : source;
+        const actualTarget = isReverseDirection ? source : target;
+
+        const updatedEdge = {
+            data: { source: actualSource, target: actualTarget, latency: newLatency, congestion: newCongestion }
+        };
+
+        const userEdgeIndex = userGraphData.elements.findIndex(el =>
+            el.data &&
+            ((el.data.source === actualSource && el.data.target === actualTarget) ||
+                (el.data.source === actualTarget && el.data.target === actualSource))
+        );
+        if (userEdgeIndex !== -1) {
+            userGraphData.elements[userEdgeIndex] = updatedEdge;
+        } else {
+            userGraphData.elements.push(updatedEdge);
+        }
+
+        await saveUserGraphData();
+
+        if (isInGraphData) {
+            const graphEdgeIndex = graphData.elements.findIndex(el =>
+                el.data &&
+                ((el.data.source === actualSource && el.data.target === actualTarget) ||
+                    (el.data.source === actualTarget && el.data.target === actualSource))
+            );
+            if (graphEdgeIndex !== -1) {
+                graphData.elements[graphEdgeIndex] = updatedEdge;
+            }
+        }
+
+        mergeGraphData();
+        initializeGraph();
+        alert('Edge properties updated and graph redrawn.');
     }
 
-    function updateSourceRouterOptions() {
-        const select = document.getElementById('sim-source');
-        select.innerHTML = '';
-        graphData.elements
-            .filter(el => el.data && el.data.id && el.data.type !== 'Gateway')
-            .forEach(el => {
-                const option = document.createElement('option');
-                option.value = el.data.id;
-                option.text = `${el.data.id} (${el.data.type})`;
-                select.appendChild(option);
-            });
-    }
-
-    function simulateRequest() {
+    async function simulateRequest() {
         const sourceId = document.getElementById('sim-source').value;
         const userType = document.getElementById('sim-user-type').value;
         const domain = document.getElementById('sim-domain').value;
@@ -667,11 +684,71 @@
             return;
         }
         const routerType = sourceNode.data.type;
+        const subnet = sourceNode.data.subnet || '10.0.0.0/24';
+        const subnetBase = subnet.split('.')[2];
+
+        let ipAddress;
+        const usedIps = recentRequests.map(req => req.ipAddress).filter(ip => ip.startsWith(`10.0.${subnetBase}.`));
+        let lastOctet;
+        if (userType === 'Student') {
+            lastOctet = 100 + Math.floor(Math.random() * 50);
+        } else if (userType === 'Staff') {
+            lastOctet = 50 + Math.floor(Math.random() * 50);
+        } else {
+            lastOctet = 0;
+        }
+
+        if (lastOctet === 0) {
+            ipAddress = '0.0.0.0';
+        } else {
+            do {
+                ipAddress = `10.0.${subnetBase}.${lastOctet}`;
+                lastOctet++;
+                if (lastOctet >= (userType === 'Student' ? 150 : 100)) {
+                    ipAddress = '0.0.0.0';
+                    break;
+                }
+            } while (usedIps.includes(ipAddress));
+        }
+
+        if (ipAddress === '0.0.0.0') {
+            alert('User not registered or subnet full: ' + userType);
+            const tbody = document.getElementById('stats-table').querySelector('tbody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${sourceId}</td>
+                <td>${userType}</td>
+                <td>${ipAddress}</td>
+                <td>${domain}</td>
+                <td>User not registered or subnet full</td>
+                <td>-</td>
+                <td>-</td>
+                <td>Failed</td>
+            `;
+            row.classList.add('unregistered');
+            tbody.prepend(row);
+            document.getElementById('stats-table').style.width = '850px';
+            document.querySelector('.stats-table-wrapper').scrollTop = 0;
+            return;
+        }
+
+        const now = new Date('2025-05-26T14:26:00+05:30'); // Updated to 02:26 PM IST
+        const hours = now.getHours();
+        const isPeakHours = hours >= 9 && hours <= 17;
+        const timeFactor = isPeakHours ? 1.5 : 1.0;
+
+        const recentRequestCount = recentRequests.filter(req => Date.now() - req.timestamp < 5 * 60 * 1000).length;
+        const trafficFactor = 1 + (recentRequestCount * 0.1);
+
+        recentRequests.push({ ipAddress, timestamp: Date.now(), domain });
+        if (recentRequests.length > 100) recentRequests.shift();
 
         let penalty = 0;
         if (userType === 'Student') penalty += 2;
         if (userType === 'Staff' && !domain.includes('.edu')) penalty += 5;
         if (!domain.includes('edu') && !domain.includes('intranet')) penalty += 3;
+
+        if (userType === 'Staff' && domain.includes('.edu')) penalty = Math.max(0, penalty - 2);
 
         const path = findShortestPath(sourceId, 'Internet', penalty);
         if (!path.length) {
@@ -679,65 +756,122 @@
             return;
         }
 
+        const linkFailure = Math.random() < 0.05;
+        if (linkFailure) {
+            alert('Network link failure occurred. Rerouting...');
+            const failedEdgeIndex = Math.floor(Math.random() * (path.length - 1));
+            const failedSource = path[failedEdgeIndex];
+            const failedTarget = path[failedEdgeIndex + 1];
+            const alternatePath = findShortestPath(sourceId, 'Internet', penalty, { excludeEdge: { source: failedSource, target: failedTarget } });
+            if (!alternatePath.length) {
+                alert('No alternate path found. Request failed.');
+                const tbody = document.getElementById('stats-table').querySelector('tbody');
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${sourceId}</td>
+                    <td>${userType}</td>
+                    <td>${ipAddress}</td>
+                    <td>${domain}</td>
+                    <td>Link failure</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>Failed</td>
+                `;
+                row.classList.add('unregistered');
+                tbody.prepend(row);
+                document.getElementById('stats-table').style.width = '850px';
+                document.querySelector('.stats-table-wrapper').scrollTop = 0;
+                return;
+            }
+            path.splice(0, path.length, ...alternatePath);
+        }
+
         let totalLatency = 0;
         let totalCongestion = 0;
         const pathEdges = [];
         for (let i = 0; i < path.length - 1; i++) {
-            const edge = graphData.elements.find(el =>
+            const edgeIndex = graphData.elements.findIndex(el =>
                 el.data && el.data.source === path[i] && el.data.target === path[i + 1]
             );
-            if (edge) {
-                totalLatency += edge.data.latency;
-                totalCongestion += edge.data.congestion;
-                pathEdges.push(edge);
+            if (edgeIndex !== -1) {
+                const edge = graphData.elements[edgeIndex];
+                const adjustedLatency = Math.round(edge.data.latency * timeFactor * trafficFactor);
+                const adjustedCongestion = Math.round(edge.data.congestion * timeFactor * trafficFactor);
+                totalLatency += adjustedLatency;
+                totalCongestion += adjustedCongestion;
+
+                // Update the edge in graphData
+                graphData.elements[edgeIndex] = {
+                    ...edge,
+                    data: {
+                        ...edge.data,
+                        latency: adjustedLatency,
+                        congestion: adjustedCongestion
+                    }
+                };
+
+                // Update the edge in the Cytoscape graph directly
+                const cyEdge = cy.edges(`[source = "${edge.data.source}"][target = "${edge.data.target}"]`);
+                if (cyEdge.length > 0) {
+                    cyEdge.data('latency', adjustedLatency);
+                    cyEdge.data('congestion', adjustedCongestion);
+                }
+
+                pathEdges.push({
+                    ...edge,
+                    data: {
+                        ...edge.data,
+                        latency: adjustedLatency,
+                        congestion: adjustedCongestion
+                    }
+                });
             }
         }
 
-        let proxyStatus;
-        const isStudentInClassroomOrLab = userType === 'Student' &&
-            (routerType === 'Classroom' || routerType === 'Lab') &&
-            domain === 'intranet.edu';
-        if (isStudentInClassroomOrLab) {
-            proxyStatus = 'Cache HIT';
-        } else if (proxyCache.has(domain)) {
-            proxyStatus = 'Cache HIT';
-        } else if (proxyLoad >= proxyMaxCapacity) {
-            proxyStatus = 'Overloaded';
-        } else {
-            proxyStatus = 'Cache MISS';
-            proxyCache.add(domain);
-            proxyLoad++;
+        let proxyStatus = updateProxyCache(domain, userType);
+        if (proxyStatus.includes('MISS') || proxyStatus === 'Overloaded') {
+            totalLatency += 5;
         }
+
+        // Save the updated graphData to data.json
+        await saveGraphData();
 
         const tbody = document.getElementById('stats-table').querySelector('tbody');
         const row = document.createElement('tr');
         row.innerHTML = `
-                <td>${sourceId}</td>
-                <td>${userType}</td>
-                <td>${domain}</td>
-                <td>${path.join(' -> ')}</td>
-                <td>${totalLatency}</td>
-                <td>${totalCongestion}</td>
-                <td>${proxyStatus}</td>
-            `;
+            <td>${sourceId}</td>
+            <td>${userType}</td>
+            <td>${ipAddress}</td>
+            <td>${domain}</td>
+            <td>${path.join(' -> ')}</td>
+            <td>${totalLatency}</td>
+            <td>${totalCongestion}</td>
+            <td>${proxyStatus}</td>
+        `;
         tbody.prepend(row);
+        document.getElementById('stats-table').style.width = '850px';
+        document.querySelector('.stats-table-wrapper').scrollTop = 0;
 
         cy.edges().removeClass('active');
-        pathEdges.forEach(edge => {
+        for (let i = 0; i < pathEdges.length; i++) {
+            const edge = pathEdges[i];
             const cyEdge = cy.edges(`[source = "${edge.data.source}"][target = "${edge.data.target}"]`);
-            cyEdge.addClass('active');
-        });
-
+            await new Promise(resolve => setTimeout(() => {
+                cyEdge.addClass('active');
+                resolve();
+            }, 1000));
+        }
         setTimeout(() => {
             cy.edges().removeClass('active');
-        }, 3000);
+        }, 3000 + pathEdges.length * 1000);
     }
 
-    function findShortestPath(startId, endId, penalty) {
+    function findShortestPath(startId, endId, penalty, options = {}) {
+        const { excludeEdge } = options;
         const distances = {};
         const previous = {};
         const queue = [];
-        const nodes = graphData.elements.filter(el => el.data && el.data.id).map(el => el.data.id);
+        const nodes = (graphData.elements || []).filter(el => el.data && el.data.id).map(el => el.data.id);
 
         if (!nodes.includes(startId) || !nodes.includes(endId)) {
             return [];
@@ -755,8 +889,9 @@
 
             if (current.id === endId) break;
 
-            const edges = graphData.elements.filter(el =>
-                el.data && el.data.source === current.id
+            const edges = (graphData.elements || []).filter(el =>
+                el.data && el.data.source === current.id &&
+                !(excludeEdge && el.data.source === excludeEdge.source && el.data.target === excludeEdge.target)
             );
 
             for (const edge of edges) {
