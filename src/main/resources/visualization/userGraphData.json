@@ -2,18 +2,30 @@
   "elements": [
     {
       "data": {
-        "id": "R1",
-        "label": "R1",
+        "id": "R13",
+        "label": "R13",
         "type": "Lab",
-        "priority": 1
+        "priority": 1,
+        "ipAddress": "10.0.0.6",
+        "subnet": "10.0.6.0/24"
       }
     },
     {
       "data": {
-        "id": "R2",
-        "label": "R2",
+        "source": "R13",
+        "target": "R2",
+        "latency": 12,
+        "congestion": 2
+      }
+    },
+    {
+      "data": {
+        "id": "R14",
+        "label": "R14",
         "type": "Classroom",
-        "priority": 3
+        "priority": 1,
+        "ipAddress": "10.0.0.22",
+        "subnet": "10.0.22.0/24"
       }
     }
   ]

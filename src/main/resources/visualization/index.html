@@ -477,32 +477,50 @@
     }
 
     async function addRouter() {
-        const id = document.getElementById('add-router-id').value.trim();
-        const type = document.getElementById('add-router-type').value;
-        const priority = parseInt(document.getElementById('add-router-priority').value);
+        try {
+            const response = await fetch('passwords.txt', { cache: 'no-store' });
+            if (!response.ok) {
+                throw new Error('Failed to fetch passwords file');
+            }
+            const passwordsText = await response.text();
+            const validPasswords = passwordsText.split('\n').map(pwd => pwd.trim()).filter(pwd => pwd);
 
-        if (!id) {
-            alert('Please enter a Router ID.');
-            return;
+            const authId = prompt('Enter id:');
+            if (!validPasswords.includes(authId)) {
+                alert('Invalid student password. Router addition rejected.');
+                return;
+            }
+
+            const id = document.getElementById('add-router-id').value.trim();
+            const type = document.getElementById('add-router-type').value;
+            const priority = parseInt(document.getElementById('add-router-priority').value);
+
+            if (!id) {
+                alert('Please enter a Router ID.');
+                return;
+            }
+
+            if (graphData.elements.some(el => el.data.id === id)) {
+                alert('Router ID already exists.');
+                return;
+            }
+
+            const ipAddress = `10.0.0.${graphData.elements.filter(el => el.data.id).length + 1}`;
+            const subnet = `10.0.${graphData.elements.filter(el => el.data.id).length + 1}.0/24`;
+            const newNode = {
+                data: { id, label: id, type, priority, ipAddress, subnet }
+            };
+            userGraphData.elements.push(newNode);
+            await saveUserGraphData();
+            graphData.elements.push(newNode);
+            mergeGraphData();
+            initializeGraph();
+            updateSourceRouterOptions();
+            alert('Router added and graph updated. Rerun SimulationEngine to include this in the simulation.');
+        } catch (error) {
+            console.error('Error fetching passwords:', error);
+            alert('Failed to load passwords file. Router addition aborted.');
         }
-
-        if (graphData.elements.some(el => el.data.id === id)) {
-            alert('Router ID already exists.');
-            return;
-        }
-
-        const ipAddress = `10.0.0.${graphData.elements.filter(el => el.data.id).length + 1}`;
-        const subnet = `10.0.${graphData.elements.filter(el => el.data.id).length + 1}.0/24`;
-        const newNode = {
-            data: { id, label: id, type, priority, ipAddress, subnet }
-        };
-        userGraphData.elements.push(newNode);
-        await saveUserGraphData();
-        graphData.elements.push(newNode);
-        mergeGraphData();
-        initializeGraph();
-        updateSourceRouterOptions();
-        alert('Router added and graph updated. Rerun SimulationEngine to include this in the simulation.');
     }
 
     async function addEdge() {
